@@ -176,8 +176,7 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
           merchants
             .filter((merchant) => {
               // Search filter
-              if (searchTerm && !merchant.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
-                  !merchant.owner_name.toLowerCase().includes(searchTerm.toLowerCase())) {
+              if (searchTerm && !merchant.name.toLowerCase().includes(searchTerm.toLowerCase())) {
                 return false;
               }
               
@@ -193,11 +192,11 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
                 key={merchant.id}
                 id={merchant.id}
                 name={merchant.name}
-                ownerName={merchant.owner_name}
+              ownerName="전통시장 상점"
                 isOpen={merchant.is_open}
                 productTags={[]} // Will be populated from products data
                 marketDay={merchant.market_day}
-                distance={merchant.distance}
+                distance={merchant.general_location || "위치 정보 없음"}
                 isSelected={selectedStallId === merchant.id}
                 onClick={onStallSelect}
               />

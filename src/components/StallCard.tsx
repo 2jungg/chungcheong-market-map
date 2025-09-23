@@ -35,7 +35,7 @@ const StallCard = ({
             {name}
           </h3>
           <p className="text-sm text-muted-foreground mt-0.5">
-            ({ownerName})
+            전통시장 상점
           </p>
         </div>
         <div className={`status-indicator ${isOpen ? 'status-open' : 'status-closed'}`}>

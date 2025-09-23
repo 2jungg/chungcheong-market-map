@@ -50,15 +50,34 @@ const MerchantDetailModal = ({ isOpen, onClose, merchantId }: MerchantDetailModa
 
     setLoading(true);
     try {
-      // Fetch merchant details
+      // Fetch full merchant details (may require authentication for sensitive data)
       const { data: merchantData, error: merchantError } = await supabase
         .from('merchants')
         .select('*')
         .eq('id', merchantId)
         .single();
 
-      if (merchantError) throw merchantError;
-      setMerchant(merchantData);
+      if (merchantError) {
+        // If access denied, show public data with message about authentication
+        console.warn('Full merchant data access denied, showing public info only');
+        
+        // Get public data via the secure function
+        const { data: publicData, error: publicError } = await supabase.rpc('get_public_merchants');
+        const publicMerchant = publicData?.find((m: any) => m.id === merchantId);
+        
+        if (publicMerchant) {
+          setMerchant({
+            ...publicMerchant,
+            owner_name: '로그인 필요',
+            phone: '로그인하여 연락처 확인',
+            address: publicMerchant.general_location || '위치 정보 없음'
+          });
+        } else {
+          throw new Error('상점 정보를 찾을 수 없습니다.');
+        }
+      } else {
+        setMerchant(merchantData);
+      }
 
       // Fetch merchant products
       const { data: productsData, error: productsError } = await supabase

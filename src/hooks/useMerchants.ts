@@ -4,18 +4,24 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Merchant {
   id: string;
   name: string;
-  owner_name: string;
-  description: string;
-  phone: string;
-  address: string;
+  description?: string;
+  market_day: string;
+  opening_time?: string;
+  closing_time?: string;
+  is_open?: boolean;
+  image_url?: string;
   latitude: number;
   longitude: number;
-  market_day: string;
-  opening_time: string;
-  closing_time: string;
-  is_open: boolean;
-  image_url?: string;
   region?: string;
+  general_location?: string;
+  created_at: string;
+  updated_at: string;
+  // Sensitive fields only available to authenticated users
+  owner_name?: string;
+  phone?: string;
+  address?: string;
+  // Computed fields
+  distance?: string;
 }
 
 export const useMerchants = (selectedRegion?: string, selectedMarket?: string) => {
@@ -30,31 +36,12 @@ export const useMerchants = (selectedRegion?: string, selectedMarket?: string) =
   const fetchMerchants = async () => {
     try {
       setLoading(true);
-      let query = supabase
-        .from('merchants')
-        .select('*')
-        .order('created_at', { ascending: false });
+      setError(null);
 
-      // Filter by region if provided
-      if (selectedRegion) {
-        query = query.eq('region', selectedRegion);
-      }
-
-      // Filter by specific market if provided
-      if (selectedMarket) {
-        // Get the market name from the selected market ID
-        const { data: marketData } = await supabase
-          .from('merchants')
-          .select('name')
-          .eq('id', selectedMarket)
-          .single();
-
-        if (marketData) {
-          query = query.eq('name', marketData.name);
-        }
-      }
-
-      const { data, error } = await query;
+      // Use the secure function to get public merchant data
+      const { data, error } = await supabase.rpc('get_public_merchants', {
+        region_filter: selectedRegion || null
+      });
 
       if (error) {
         throw error;
@@ -63,7 +50,7 @@ export const useMerchants = (selectedRegion?: string, selectedMarket?: string) =
       setMerchants(data || []);
     } catch (err) {
       console.error('Error fetching merchants:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Failed to fetch merchants');
     } finally {
       setLoading(false);
     }
@@ -101,10 +88,31 @@ export const useMerchants = (selectedRegion?: string, selectedMarket?: string) =
     }));
   };
 
+  const fetchMerchantDetails = async (merchantId: string): Promise<Merchant | null> => {
+    try {
+      // Try to get full merchant details (requires authentication for sensitive data)
+      const { data, error } = await supabase
+        .from('merchants')
+        .select('*')
+        .eq('id', merchantId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Error fetching merchant details:', err);
+      return null;
+    }
+  };
+
   return {
     merchants: getMerchantsWithDistance(),
     loading,
     error,
-    refetch: fetchMerchants
+    refetch: fetchMerchants,
+    fetchMerchantDetails
   };
 };
