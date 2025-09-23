@@ -1,0 +1,30 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 * * * *' # 매 시간 정각에 실행 (주기는 자유롭게 변경 가능)
+  workflow_dispatch: # 수동으로 Actions 탭에서 실행할 수 있게 함
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Personal Access Token(PAT)을 사용하여 checkout 해야 push가 가능합니다.
+          token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Add Upstream Remote
+        run: git remote add upstream https://github.com/ssum21/chungcheong-market-map.git
+
+      - name: Fetch Upstream
+        run: git fetch upstream
+
+      - name: Merge Upstream/main
+        run: |
+          git checkout main
+          git merge upstream/main
+          git push origin main
