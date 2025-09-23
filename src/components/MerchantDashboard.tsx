@@ -110,7 +110,7 @@ const MerchantDashboard = ({ stallName = "햇살농산물 (박 할머니네)", o
                 className={`h-20 flex-col gap-2 ${textSizeClass} ${
                   isOpen 
                     ? "bg-primary hover:bg-primary/90 text-white" 
-                    : "border-muted text-muted-foreground hover:bg-muted/10"
+                    : "border-gray-400 text-gray-600 hover:bg-gray-200"
                 }`}
                 onClick={handleOpenToggle}
               >

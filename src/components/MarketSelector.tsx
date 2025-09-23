@@ -207,6 +207,10 @@ const MarketSelector = ({
                   <Button 
                     className="w-full mt-4"
                     variant={isOpen ? "default" : "outline"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMarketSelect(market.id);
+                    }}
                   >
                     {market.name} 둘러보기
                   </Button>

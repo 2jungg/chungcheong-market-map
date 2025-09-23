@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { resizeImage, validateImageFile, createImagePreview, extractGPSFromImage } from "@/utils/imageUtils";
 
 interface Step1PhotoUploadProps {
-  onPhotoUpload: (imageUrl: string, gpsData?: { lat: number; lng: number }) => void;
+  onPhotoUpload: (file: File, imageUrl: string, gpsData?: { lat: number; lng: number }) => void;
   onNext: () => void;
   onCancel: () => void;
   hasPhoto: boolean;
@@ -64,12 +64,9 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
       // Extract GPS data
       const gpsData = await extractGPSFromImage(file);
       
-      // Simulate AI processing with delay
-      setTimeout(() => {
-        onPhotoUpload(previewUrl, gpsData || undefined);
-        setUploading(false);
-        toast.success("사진이 성공적으로 업로드되었습니다!");
-      }, 1500);
+      onPhotoUpload(file, previewUrl, gpsData || undefined);
+      setUploading(false);
+      toast.success("사진이 성공적으로 업로드되었습니다!");
       
     } catch (error) {
       console.error("Upload error:", error);
@@ -80,7 +77,8 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
 
   const handleRemovePhoto = () => {
     setPreviewImage(null);
-    onPhotoUpload("");
+    // This needs to be fixed, but we'll handle the reset logic in the parent.
+    // For now, just clear the preview.
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }

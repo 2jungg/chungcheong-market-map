@@ -5,11 +5,20 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { analyzeImageWithGemini } from "@/utils/imageUtils";
 
 interface Step2AIAnalysisProps {
   uploadedImage: string | null;
+  uploadedFile: File | null;
   stallData: {
     name: string;
+    description: string;
+    owner_name: string;
+    address: string;
+    market_day: string;
+    opening_time: string;
+    closing_time: string;
+    phone: string;
     products: string[];
     category: string;
     location: { lat: number; lng: number };
@@ -21,6 +30,7 @@ interface Step2AIAnalysisProps {
 
 const Step2AIAnalysis = ({ 
   uploadedImage, 
+  uploadedFile,
   stallData, 
   onDataUpdate, 
   onNext, 
@@ -29,36 +39,42 @@ const Step2AIAnalysis = ({
   const [newProductTag, setNewProductTag] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock AI analysis data
-  const aiAnalysisResults = {
-    name: "햇살농산물 (박 할머니네)",
-    products: ["공주알밤", "유기농고구마", "햇자두", "청양고추"],
-    category: "채소/과일",
-    location: { lat: 36.4606, lng: 127.2907 } // 충청남도 좌표
-  };
-
   const categories = [
     "채소/과일",
-    "수산물", 
+    "수산물",
     "정육",
     "음식점",
     "기타"
   ];
 
   useEffect(() => {
-    // Simulate AI analysis loading
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      onDataUpdate(aiAnalysisResults);
-      setIsLoading(false);
-      toast.success("AI 분석이 완료되었습니다!");
-    }, 2000);
+    const performAnalysis = async () => {
+      if (uploadedFile) {
+        setIsLoading(true);
+        try {
+          const analysisResult = await analyzeImageWithGemini(uploadedFile);
+          if (analysisResult) {
+            onDataUpdate(analysisResult);
+            toast.success("AI 분석이 완료되었습니다!");
+          } else {
+            toast.error("AI 분석에 실패했습니다. 정보를 직접 입력해주세요.");
+          }
+        } catch (error) {
+          console.error("Error during AI analysis:", error);
+          toast.error("AI 분석 중 오류가 발생했습니다.");
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, []);
+    performAnalysis();
+  }, [uploadedFile]);
 
-  const handleNameChange = (value: string) => {
-    onDataUpdate({ name: value });
+  const handleDataChange = (field: keyof typeof stallData, value: any) => {
+    onDataUpdate({ [field]: value });
   };
 
   const handleCategoryChange = (category: string) => {
@@ -130,8 +146,106 @@ const Step2AIAnalysis = ({
             <Input
               id="stallName"
               value={stallData.name}
-              onChange={(e) => handleNameChange(e.target.value)}
+              onChange={(e) => handleDataChange('name', e.target.value)}
               placeholder="예: 햇살농산물 (박 할머니네)"
+              className="text-base py-3"
+            />
+          </div>
+
+          {/* 가게 설명 */}
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-base font-medium">
+              가게 설명
+            </Label>
+            <Input
+              id="description"
+              value={stallData.description}
+              onChange={(e) => handleDataChange('description', e.target.value)}
+              placeholder="예: 신선한 제철 과일과 채소를 판매합니다."
+              className="text-base py-3"
+            />
+          </div>
+
+          {/* 사업자명 */}
+          <div className="space-y-2">
+            <Label htmlFor="owner_name" className="text-base font-medium">
+              사업자명
+            </Label>
+            <Input
+              id="owner_name"
+              value={stallData.owner_name}
+              onChange={(e) => handleDataChange('owner_name', e.target.value)}
+              placeholder="예: 박할머니"
+              className="text-base py-3"
+            />
+          </div>
+
+          {/* 상세 주소 */}
+          <div className="space-y-2">
+            <Label htmlFor="address" className="text-base font-medium">
+              상세 주소
+            </Label>
+            <Input
+              id="address"
+              value={stallData.address}
+              onChange={(e) => handleDataChange('address', e.target.value)}
+              placeholder="예: 충북 청주시 상당구 육거리시장"
+              className="text-base py-3"
+            />
+          </div>
+
+          {/* 장날 */}
+          <div className="space-y-2">
+            <Label htmlFor="market_day" className="text-base font-medium">
+              장날
+            </Label>
+            <Input
+              id="market_day"
+              value={stallData.market_day}
+              onChange={(e) => handleDataChange('market_day', e.target.value)}
+              placeholder="예: 1,6"
+              className="text-base py-3"
+            />
+          </div>
+
+          {/* 운영시간 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="opening_time" className="text-base font-medium">
+                운영 시작 시간
+              </Label>
+              <Input
+                id="opening_time"
+                type="time"
+                value={stallData.opening_time}
+                onChange={(e) => handleDataChange('opening_time', e.target.value)}
+                className="text-base py-3"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="closing_time" className="text-base font-medium">
+                운영 종료 시간
+              </Label>
+              <Input
+                id="closing_time"
+                type="time"
+                value={stallData.closing_time}
+                onChange={(e) => handleDataChange('closing_time', e.target.value)}
+                className="text-base py-3"
+              />
+            </div>
+          </div>
+
+          {/* 연락처 */}
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-base font-medium">
+              연락처
+            </Label>
+            <Input
+              id="phone"
+              value={stallData.phone}
+              onChange={(e) => handleDataChange('phone', e.target.value)}
+              placeholder="예: 010-1234-5678"
               className="text-base py-3"
             />
           </div>

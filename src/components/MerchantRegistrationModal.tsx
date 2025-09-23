@@ -15,17 +15,27 @@ interface MerchantRegistrationModalProps {
   selectedRegion?: string;
 }
 
+const initialStallData = {
+  name: "",
+  description: "",
+  owner_name: "",
+  address: "",
+  market_day: "",
+  opening_time: "",
+  closing_time: "",
+  phone: "",
+  products: [] as string[],
+  category: "",
+  location: { lat: 0, lng: 0 },
+  market: "",
+  password: ""
+};
+
 const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket, selectedRegion }: MerchantRegistrationModalProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [stallData, setStallData] = useState({
-    name: "",
-    products: [] as string[],
-    category: "",
-    location: { lat: 0, lng: 0 },
-    market: selectedMarket || "",
-    password: ""
-  });
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [stallData, setStallData] = useState({ ...initialStallData, market: selectedMarket || "" });
   const [gpsData, setGpsData] = useState<{ lat: number; lng: number } | null>(null);
 
   const totalSteps = 3;
@@ -43,7 +53,8 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket
     }
   };
 
-  const handlePhotoUpload = (imageUrl: string, gpsData?: { lat: number; lng: number }) => {
+  const handlePhotoUpload = (file: File, imageUrl: string, gpsData?: { lat: number; lng: number }) => {
+    setUploadedFile(file);
     setUploadedImage(imageUrl);
     if (gpsData) {
       setGpsData(gpsData);
@@ -55,14 +66,24 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket
     setStallData(prev => ({ ...prev, ...data }));
   };
 
+  const resetModal = () => {
+    setCurrentStep(1);
+    setUploadedImage(null);
+    setUploadedFile(null);
+    setStallData({ ...initialStallData, market: selectedMarket || "" });
+    setGpsData(null);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      resetModal();
+      onClose();
+    }
+  };
+
   const handleComplete = () => {
     onComplete();
     onClose();
-    // Reset modal state
-    setCurrentStep(1);
-    setUploadedImage(null);
-    setStallData({ name: "", products: [], category: "", location: { lat: 0, lng: 0 }, market: "", password: "" });
-    setGpsData(null);
   };
 
   const renderStep = () => {
@@ -80,6 +101,7 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket
         return (
           <Step2AIAnalysis
             uploadedImage={uploadedImage}
+            uploadedFile={uploadedFile}
             stallData={stallData}
             onDataUpdate={handleStallDataUpdate}
             onNext={handleNext}
@@ -101,7 +123,7 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] w-full mx-4 sm:mx-auto p-0 overflow-hidden">
         <DialogHeader className="px-4 sm:px-8 py-4 sm:py-6 border-b border-border">
           <div className="space-y-4">
