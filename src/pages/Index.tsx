@@ -40,13 +40,10 @@ const Index = () => {
 
   const handleLoadingComplete = () => {
     setIsAppLoaded(true);
-    // API 키 설정 여부 확인 (선택사항)
-    const savedApiKey = localStorage.getItem('kakao-api-key');
-    if (savedApiKey) {
-      setKakaoApiKey(savedApiKey);
-    } else {
-      setShowApiSetup(true);
-    }
+    // API 키를 자동으로 설정
+    const apiKey = "f51bfd81bde558126cb30b3d1052ab13";
+    setKakaoApiKey(apiKey);
+    localStorage.setItem('kakao-api-key', apiKey);
   };
 
   const handleApiKeySet = (apiKey: string) => {
@@ -60,18 +57,8 @@ const Index = () => {
   };
 
   // 로딩 화면 표시
-  if (!isAppLoaded) {
+  if (!isAppLoaded || !isMapLoaded) {
     return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
-  }
-
-  // API 설정 화면 표시
-  if (showApiSetup) {
-    return (
-      <KakaoMapSetup 
-        onApiKeySet={handleApiKeySet}
-        onSkip={handleSkipApiSetup}
-      />
-    );
   }
 
   if (showMerchantDashboard) {

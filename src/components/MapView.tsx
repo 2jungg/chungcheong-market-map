@@ -1,12 +1,17 @@
-import { useEffect, useState } from "react";
-import { MapPin } from "lucide-react";
+import { useEffect, useRef, useState } from 'react';
+
+declare global {
+  interface Window {
+    kakao: any;
+  }
+}
 
 interface MapMarker {
   id: string;
   name: string;
   productTags: string[];
-  x: number; // percentage from left
-  y: number; // percentage from top
+  lat: number; // 위도
+  lng: number; // 경도
 }
 
 interface MapViewProps {
@@ -14,145 +19,179 @@ interface MapViewProps {
   onMarkerClick: (id: string) => void;
 }
 
+// 충청남도 공주시 중심 좌표 (공주시장 주변)
 const mockMarkers: MapMarker[] = [
   {
     id: "1",
-    name: "햇살농산물",
-    productTags: ["공주알밤", "유기농고구마", "햇자두", "청양고추"],
-    x: 35,
-    y: 45
+    name: "햇살농산물 (박 할머니네)",
+    productTags: ["공주알밤", "유기농고구마", "햇자두"],
+    lat: 36.4606,
+    lng: 127.1197
   },
   {
-    id: "2",
-    name: "산골야채마을", 
-    productTags: ["무농약배추", "대파", "시금치", "상추"],
-    x: 60,
-    y: 30
+    id: "2", 
+    name: "바다의 선물 (이 사장님)",
+    productTags: ["서해새우젓", "꽃게", "민어"],
+    lat: 36.4596,
+    lng: 127.1207
   },
   {
     id: "3",
-    name: "바다생선가게",
-    productTags: ["고등어", "갈치", "오징어", "새우젓"],
-    x: 20,
-    y: 70
+    name: "정육점 김사장",
+    productTags: ["한우", "돼지고기", "닭고기"],
+    lat: 36.4616,
+    lng: 127.1187
   },
   {
     id: "4",
-    name: "전통떡집",
-    productTags: ["인절미", "송편", "백설기", "개피떡"],
-    x: 75,
-    y: 55
+    name: "전통떡집 (할머니네)",
+    productTags: ["인절미", "송편", "백설기"],
+    lat: 36.4586,
+    lng: 127.1217
   },
   {
     id: "5",
-    name: "계절과일상회",
-    productTags: ["사과", "배", "감", "곶감"],
-    x: 45,
-    y: 25
+    name: "청양고추 전문점",
+    productTags: ["청양고추", "오이", "배추"],
+    lat: 36.4626,
+    lng: 127.1177
   }
 ];
 
 const MapView = ({ selectedStallId, onMarkerClick }: MapViewProps) => {
-  const [showInfoWindow, setShowInfoWindow] = useState<string | null>(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<any>(null);
+  const markers = useRef<any[]>([]);
+  const infoWindows = useRef<any[]>([]);
+  const [isMapReady, setIsMapReady] = useState(false);
 
+  // 카카오맵 초기화
   useEffect(() => {
-    if (selectedStallId) {
-      setShowInfoWindow(selectedStallId);
-      // Auto-hide info window after 5 seconds
-      const timer = setTimeout(() => {
-        setShowInfoWindow(null);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedStallId]);
+    if (!window.kakao || !window.kakao.maps || !mapContainer.current) return;
 
-  const handleMarkerClick = (markerId: string) => {
-    onMarkerClick(markerId);
-    setShowInfoWindow(markerId);
-  };
+    const options = {
+      center: new window.kakao.maps.LatLng(36.4606, 127.1197), // 공주시 중심
+      level: 3 // 확대 레벨
+    };
 
-  return (
-    <div className="w-full h-full bg-muted/30 relative overflow-hidden rounded-lg">
-      {/* Map Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-green-50">
-        <div className="absolute inset-0 opacity-20">
-          <svg width="100%" height="100%" viewBox="0 0 100 100" className="w-full h-full">
-            {/* Street lines */}
-            <line x1="0" y1="30" x2="100" y2="30" stroke="#94a3b8" strokeWidth="0.2" />
-            <line x1="0" y1="70" x2="100" y2="70" stroke="#94a3b8" strokeWidth="0.2" />
-            <line x1="25" y1="0" x2="25" y2="100" stroke="#94a3b8" strokeWidth="0.2" />
-            <line x1="75" y1="0" x2="75" y2="100" stroke="#94a3b8" strokeWidth="0.2" />
-            
-            {/* Building blocks */}
-            <rect x="30" y="35" width="15" height="10" fill="#e2e8f0" opacity="0.5" />
-            <rect x="50" y="75" width="20" height="8" fill="#e2e8f0" opacity="0.5" />
-            <rect x="10" y="50" width="12" height="15" fill="#e2e8f0" opacity="0.5" />
-          </svg>
+    map.current = new window.kakao.maps.Map(mapContainer.current, options);
+    setIsMapReady(true);
+  }, []);
+
+  // 마커 생성 및 관리
+  useEffect(() => {
+    if (!isMapReady || !map.current) return;
+
+    // 기존 마커들 제거
+    markers.current.forEach(marker => marker.setMap(null));
+    infoWindows.current.forEach(infoWindow => infoWindow.close());
+    markers.current = [];
+    infoWindows.current = [];
+
+    // 새 마커들 생성
+    mockMarkers.forEach((markerData) => {
+      const position = new window.kakao.maps.LatLng(markerData.lat, markerData.lng);
+      
+      // 마커 이미지 설정
+      const isSelected = selectedStallId === markerData.id;
+      const imageSrc = isSelected 
+        ? 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png'
+        : 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png';
+      
+      const imageSize = new window.kakao.maps.Size(24, 35);
+      const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
+
+      // 마커 생성
+      const marker = new window.kakao.maps.Marker({
+        position: position,
+        image: markerImage
+      });
+
+      marker.setMap(map.current);
+      markers.current.push(marker);
+
+      // 인포윈도우 생성
+      const infoWindowContent = `
+        <div style="padding:10px;width:200px;">
+          <h4 style="margin:0 0 5px 0;font-size:14px;font-weight:bold;">${markerData.name}</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            ${markerData.productTags.map(tag => 
+              `<span style="background:#e3f2fd;color:#1565c0;padding:2px 6px;border-radius:12px;font-size:11px;">#${tag}</span>`
+            ).join('')}
+          </div>
+        </div>
+      `;
+
+      const infoWindow = new window.kakao.maps.InfoWindow({
+        content: infoWindowContent
+      });
+
+      infoWindows.current.push(infoWindow);
+
+      // 마커 클릭 이벤트
+      window.kakao.maps.event.addListener(marker, 'click', () => {
+        // 다른 인포윈도우들 닫기
+        infoWindows.current.forEach(iw => iw.close());
+        
+        // 현재 인포윈도우 열기
+        infoWindow.open(map.current, marker);
+        
+        // 상위 컴포넌트에 클릭 이벤트 전달
+        onMarkerClick(markerData.id);
+      });
+
+      // 선택된 마커의 인포윈도우 열기
+      if (isSelected) {
+        infoWindow.open(map.current, marker);
+        // 선택된 마커 중심으로 이동
+        map.current.setCenter(position);
+      }
+    });
+  }, [isMapReady, selectedStallId, onMarkerClick]);
+
+  if (!window.kakao || !window.kakao.maps) {
+    return (
+      <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-primary animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <p className="text-lg font-medium text-foreground mb-2">카카오맵을 불러오고 있어요</p>
+          <p className="text-sm text-muted-foreground">잠시만 기다려주세요...</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Placeholder Text */}
-      <div className="absolute top-6 left-6 right-6 bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-border">
-        <h3 className="font-semibold text-foreground mb-1">
-          인터랙티브 지도 영역
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          네이버/카카오 지도 API가 통합될 예정입니다
-        </p>
+  return (
+    <div className="w-full h-full bg-muted rounded-lg overflow-hidden relative">
+      <div 
+        ref={mapContainer} 
+        className="w-full h-full"
+      />
+      
+      {/* 지도 컨트롤 오버레이 */}
+      <div className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
+        <p className="text-sm font-medium text-foreground">공주시 전통시장</p>
+        <p className="text-xs text-muted-foreground">실시간 업데이트</p>
       </div>
 
-      {/* Map Markers */}
-      {mockMarkers.map((marker) => {
-        const isSelected = selectedStallId === marker.id;
-        const showInfo = showInfoWindow === marker.id;
-        
-        return (
-          <div key={marker.id} className="absolute" style={{ left: `${marker.x}%`, top: `${marker.y}%` }}>
-            {/* Info Window */}
-            {showInfo && (
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-20">
-                <div className="bg-white border border-border rounded-lg shadow-lg p-3 min-w-48">
-                  <h4 className="font-semibold text-sm text-foreground mb-2">
-                    {marker.name}
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {marker.productTags.slice(0, 3).map((tag, index) => (
-                      <span key={index} className="product-tag text-xs">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                  {/* Arrow */}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -translate-y-px">
-                    <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white"></div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Marker */}
-            <button
-              onClick={() => handleMarkerClick(marker.id)}
-              className={`transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 hover:scale-110 z-10 ${
-                isSelected ? 'scale-125' : 'scale-100'
-              }`}
-            >
-              <div className={`relative ${isSelected ? 'animate-pulse' : ''}`}>
-                <MapPin 
-                  className={`w-8 h-8 drop-shadow-md ${
-                    isSelected 
-                      ? 'text-accent fill-accent/20' 
-                      : 'text-primary fill-primary/20'
-                  }`}
-                />
-                <div className={`absolute top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 rounded-full ${
-                  isSelected ? 'bg-accent' : 'bg-primary'
-                }`} />
-              </div>
-            </button>
+      {/* 범례 */}
+      <div className="absolute bottom-4 right-4 bg-card/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+        <div className="flex flex-col gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+            <span>일반 상점</span>
           </div>
-        );
-      })}
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+            <span>선택된 상점</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
