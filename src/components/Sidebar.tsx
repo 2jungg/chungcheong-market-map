@@ -157,36 +157,6 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
         </div>
       </div>
 
-      {/* Merchant Management Section */}
-      <div className="px-6 py-4 border-b border-border space-y-2">
-        <div className="space-y-2">
-          <Button
-            onClick={() => setShowMerchantDashboard(true)}
-            variant="outline"
-            className="w-full justify-start gap-2"
-          >
-            <Store className="w-4 h-4" />
-            내 가게 관리하기
-          </Button>
-          
-          <Button
-            onClick={() => setShowAuthModal(true)}
-            variant="outline"
-            className="w-full justify-start gap-2"
-          >
-            <Settings className="w-4 h-4" />
-            기존 가게 관리
-          </Button>
-        </div>
-        
-        <Button
-          onClick={() => setShowRegistrationModal(true)}
-          variant="default"
-          className="w-full h-10 text-sm font-medium"
-        >
-          <span>새 가게 등록하기</span>
-        </Button>
-      </div>
 
       {/* Scrollable Stall List */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">

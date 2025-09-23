@@ -7,6 +7,7 @@ import MapView from "@/components/MapView";
 import MerchantRegistrationModal from "@/components/MerchantRegistrationModal";
 import MerchantDashboard from "@/components/MerchantDashboard";
 import MerchantDetailModal from "@/components/MerchantDetailModal";
+import MerchantAuthModal from "@/components/MerchantAuthModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import KakaoMapSetup from "@/components/KakaoMapSetup";
 import RegionSelector from "@/components/RegionSelector";
@@ -25,6 +26,7 @@ const Index = () => {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{latitude: number; longitude: number} | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   
   const isMobile = useIsMobile();
   const { isLoaded: isMapLoaded } = useKakaoMap({ apiKey: kakaoApiKey || undefined });
@@ -133,7 +135,11 @@ const Index = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           시장 선택으로 돌아가기
         </Button>
-        <Header onRegisterClick={handleRegisterClick} />
+        <Header 
+          onRegisterClick={handleRegisterClick} 
+          onManageClick={() => setShowAuthModal(true)}
+          showLogo={false}
+        />
       </div>
       
       {/* Main Content - Different layout for mobile vs desktop */}
@@ -199,6 +205,16 @@ const Index = () => {
         isOpen={isMerchantDetailOpen}
         onClose={() => setIsMerchantDetailOpen(false)}
         merchantId={selectedStallId}
+      />
+
+      {/* Merchant Auth Modal */}
+      <MerchantAuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthenticated={() => {
+          setShowAuthModal(false);
+          setShowMerchantDashboard(true);
+        }}
       />
     </div>
   );
