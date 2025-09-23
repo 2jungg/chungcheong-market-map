@@ -7,6 +7,7 @@ import MerchantDashboard from "@/components/MerchantDashboard";
 import LoadingScreen from "@/components/LoadingScreen";
 import KakaoMapSetup from "@/components/KakaoMapSetup";
 import { useKakaoMap } from "@/hooks/useKakaoMap";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const [selectedStallId, setSelectedStallId] = useState<string | null>(null);
@@ -16,6 +17,7 @@ const Index = () => {
   const [kakaoApiKey, setKakaoApiKey] = useState<string | null>(null);
   const [showApiSetup, setShowApiSetup] = useState(false);
   
+  const isMobile = useIsMobile();
   const { isLoaded: isMapLoaded } = useKakaoMap({ apiKey: kakaoApiKey || undefined });
 
   const handleStallSelect = (id: string) => {
@@ -70,24 +72,46 @@ const Index = () => {
       {/* Header */}
       <Header onRegisterClick={handleRegisterClick} />
       
-      {/* Main Content */}
-      <div className="flex flex-1">
-        {/* Left Sidebar - 35% */}
-        <div className="w-[35%] h-[calc(100vh-4rem)]">
-          <Sidebar 
-            selectedStallId={selectedStallId}
-            onStallSelect={handleStallSelect}
-          />
+      {/* Main Content - Different layout for mobile vs desktop */}
+      {isMobile ? (
+        // Mobile Layout: Map on top, Sidebar below
+        <div className="flex flex-col flex-1">
+          {/* Map Area - Takes 60% of remaining height */}
+          <div className="h-[60vh] p-4">
+            <MapView 
+              selectedStallId={selectedStallId}
+              onMarkerClick={handleMarkerClick}
+            />
+          </div>
+          
+          {/* Sidebar Area - Takes remaining 40% */}
+          <div className="flex-1 min-h-[40vh]">
+            <Sidebar 
+              selectedStallId={selectedStallId}
+              onStallSelect={handleStallSelect}
+            />
+          </div>
         </div>
-        
-        {/* Right Map Area - 65% */}
-        <div className="w-[65%] h-[calc(100vh-4rem)] p-6">
-          <MapView 
-            selectedStallId={selectedStallId}
-            onMarkerClick={handleMarkerClick}
-          />
+      ) : (
+        // Desktop Layout: Sidebar left, Map right
+        <div className="flex flex-1">
+          {/* Left Sidebar - 35% */}
+          <div className="w-[35%] h-[calc(100vh-4rem)]">
+            <Sidebar 
+              selectedStallId={selectedStallId}
+              onStallSelect={handleStallSelect}
+            />
+          </div>
+          
+          {/* Right Map Area - 65% */}
+          <div className="w-[65%] h-[calc(100vh-4rem)] p-6">
+            <MapView 
+              selectedStallId={selectedStallId}
+              onMarkerClick={handleMarkerClick}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Registration Modal */}
       <MerchantRegistrationModal
