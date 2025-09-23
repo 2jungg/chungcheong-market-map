@@ -119,7 +119,7 @@ const MarketSelector = ({
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10">
       <div className="container mx-auto px-4 py-8">
         {/* Header with back button */}
-        <div className="flex items-center mb-8">
+        <div className="flex items-center mb-8 pt-4">
           <Button
             variant="ghost"
             size="sm"
