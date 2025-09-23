@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import StallCard from "./StallCard";
+import { useMerchants } from "@/hooks/useMerchants";
 
 interface Stall {
   id: string;
@@ -70,6 +71,7 @@ const mockStalls: Stall[] = [
 const Sidebar = ({ selectedStallId, onStallSelect }: SidebarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const { merchants, loading, error } = useMerchants();
 
   const filters = [
     { id: "open", label: "영업 중" },
@@ -124,20 +126,49 @@ const Sidebar = ({ selectedStallId, onStallSelect }: SidebarProps) => {
 
       {/* Scrollable Stall List */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {mockStalls.map((stall) => (
-          <StallCard
-            key={stall.id}
-            id={stall.id}
-            name={stall.name}
-            ownerName={stall.ownerName}
-            isOpen={stall.isOpen}
-            productTags={stall.productTags}
-            marketDay={stall.marketDay}
-            distance={stall.distance}
-            isSelected={selectedStallId === stall.id}
-            onClick={onStallSelect}
-          />
-        ))}
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8 text-red-500">
+            데이터를 불러오는데 실패했습니다.
+          </div>
+        ) : merchants.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            등록된 판매점이 없습니다.
+          </div>
+        ) : (
+          merchants
+            .filter((merchant) => {
+              // Search filter
+              if (searchTerm && !merchant.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
+                  !merchant.owner_name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                return false;
+              }
+              
+              // Status filter
+              if (activeFilter === "open" && !merchant.is_open) {
+                return false;
+              }
+              
+              return true;
+            })
+            .map((merchant) => (
+              <StallCard
+                key={merchant.id}
+                id={merchant.id}
+                name={merchant.name}
+                ownerName={merchant.owner_name}
+                isOpen={merchant.is_open}
+                productTags={[]} // Will be populated from products data
+                marketDay={merchant.market_day}
+                distance={merchant.distance}
+                isSelected={selectedStallId === merchant.id}
+                onClick={onStallSelect}
+              />
+            ))
+        )}
       </div>
     </div>
   );

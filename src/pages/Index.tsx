@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import MapView from "@/components/MapView";
 import MerchantRegistrationModal from "@/components/MerchantRegistrationModal";
 import MerchantDashboard from "@/components/MerchantDashboard";
+import MerchantDetailModal from "@/components/MerchantDetailModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import KakaoMapSetup from "@/components/KakaoMapSetup";
 import { useKakaoMap } from "@/hooks/useKakaoMap";
@@ -16,16 +17,19 @@ const Index = () => {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
   const [kakaoApiKey, setKakaoApiKey] = useState<string | null>(null);
   const [showApiSetup, setShowApiSetup] = useState(false);
+  const [isMerchantDetailOpen, setIsMerchantDetailOpen] = useState(false);
   
   const isMobile = useIsMobile();
   const { isLoaded: isMapLoaded } = useKakaoMap({ apiKey: kakaoApiKey || undefined });
 
   const handleStallSelect = (id: string) => {
-    setSelectedStallId(selectedStallId === id ? null : id);
+    setSelectedStallId(id);
+    setIsMerchantDetailOpen(true);
   };
 
   const handleMarkerClick = (id: string) => {
-    setSelectedStallId(selectedStallId === id ? null : id);
+    setSelectedStallId(id);
+    setIsMerchantDetailOpen(true);
   };
 
   const handleRegisterClick = () => {
@@ -118,6 +122,13 @@ const Index = () => {
         isOpen={isRegistrationModalOpen}
         onClose={handleCloseModal}
         onComplete={handleRegistrationComplete}
+      />
+
+      {/* Merchant Detail Modal */}
+      <MerchantDetailModal
+        isOpen={isMerchantDetailOpen}
+        onClose={() => setIsMerchantDetailOpen(false)}
+        merchantId={selectedStallId}
       />
     </div>
   );

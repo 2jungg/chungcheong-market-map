@@ -14,7 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      merchants: {
+        Row: {
+          address: string | null
+          closing_time: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_open: boolean | null
+          latitude: number
+          longitude: number
+          market_day: string
+          name: string
+          opening_time: string | null
+          owner_name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          closing_time?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_open?: boolean | null
+          latitude: number
+          longitude: number
+          market_day: string
+          name: string
+          opening_time?: string | null
+          owner_name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          closing_time?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_open?: boolean | null
+          latitude?: number
+          longitude?: number
+          market_day?: string
+          name?: string
+          opening_time?: string | null
+          owner_name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          merchant_id: string
+          name: string
+          price: number | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          merchant_id: string
+          name: string
+          price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          merchant_id?: string
+          name?: string
+          price?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

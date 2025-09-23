@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useMerchants } from "@/hooks/useMerchants";
 
 declare global {
   interface Window {
@@ -63,6 +64,7 @@ const MapView = ({ selectedStallId, onMarkerClick }: MapViewProps) => {
   const map = useRef<any>(null);
   const markers = useRef<any[]>([]);
   const infoWindows = useRef<any[]>([]);
+  const { merchants, loading } = useMerchants();
   const [isMapReady, setIsMapReady] = useState(false);
 
   // 카카오맵 초기화
@@ -89,11 +91,11 @@ const MapView = ({ selectedStallId, onMarkerClick }: MapViewProps) => {
     infoWindows.current = [];
 
     // 새 마커들 생성
-    mockMarkers.forEach((markerData) => {
-      const position = new window.kakao.maps.LatLng(markerData.lat, markerData.lng);
+    merchants.forEach((merchant) => {
+      const position = new window.kakao.maps.LatLng(merchant.latitude, merchant.longitude);
       
       // 마커 이미지 설정
-      const isSelected = selectedStallId === markerData.id;
+      const isSelected = selectedStallId === merchant.id;
       const imageSrc = isSelected 
         ? 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png'
         : 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png';
@@ -113,12 +115,14 @@ const MapView = ({ selectedStallId, onMarkerClick }: MapViewProps) => {
       // 인포윈도우 생성
       const infoWindowContent = `
         <div style="padding:10px;width:200px;">
-          <h4 style="margin:0 0 5px 0;font-size:14px;font-weight:bold;">${markerData.name}</h4>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;">
-            ${markerData.productTags.map(tag => 
-              `<span style="background:#e3f2fd;color:#1565c0;padding:2px 6px;border-radius:12px;font-size:11px;">#${tag}</span>`
-            ).join('')}
+          <h4 style="margin:0 0 5px 0;font-size:14px;font-weight:bold;">${merchant.name}</h4>
+          <p style="margin:0 0 4px 0;font-size:12px;color:#666;">사장님: ${merchant.owner_name}</p>
+          <p style="margin:0 0 4px 0;font-size:12px;color:#666;">영업일: ${merchant.market_day}</p>
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:${merchant.is_open ? '#10b981' : '#6b7280'};"></span>
+            <span style="font-size:12px;color:#666;">${merchant.is_open ? '현재 영업 중' : '영업 종료'}</span>
           </div>
+          <p style="margin:0;font-size:12px;color:#666;">클릭하여 상세정보 보기</p>
         </div>
       `;
 
@@ -137,7 +141,7 @@ const MapView = ({ selectedStallId, onMarkerClick }: MapViewProps) => {
         infoWindow.open(map.current, marker);
         
         // 상위 컴포넌트에 클릭 이벤트 전달
-        onMarkerClick(markerData.id);
+        onMarkerClick(merchant.id);
       });
 
       // 선택된 마커의 인포윈도우 열기
@@ -147,7 +151,7 @@ const MapView = ({ selectedStallId, onMarkerClick }: MapViewProps) => {
         map.current.setCenter(position);
       }
     });
-  }, [isMapReady, selectedStallId, onMarkerClick]);
+  }, [isMapReady, selectedStallId, onMarkerClick, merchants]);
 
   if (!window.kakao || !window.kakao.maps) {
     return (
