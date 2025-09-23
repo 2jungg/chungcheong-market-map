@@ -3,16 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Star, Clock, Flame, Edit, Eye, MessageSquare, Type } from "lucide-react";
+import { Star, Clock, Flame, Edit, Eye, MessageSquare, Type, ArrowLeft, Power, PowerOff, Camera, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 interface MerchantDashboardProps {
   stallName?: string;
+  onBack?: () => void;
 }
 
-const MerchantDashboard = ({ stallName = "햇살농산물 (박 할머니네)" }: MerchantDashboardProps) => {
+const MerchantDashboard = ({ stallName = "햇살농산물 (박 할머니네)", onBack }: MerchantDashboardProps) => {
   const [isLargeText, setIsLargeText] = useState(false);
   const [activeStatus, setActiveStatus] = useState<"special" | "soldout" | null>(null);
+  const [isOpen, setIsOpen] = useState(true);
+  const [storeImage, setStoreImage] = useState<string | null>(null);
 
   const handleStatusToggle = (status: "special" | "soldout") => {
     if (activeStatus === status) {
@@ -25,6 +28,20 @@ const MerchantDashboard = ({ stallName = "햇살농산물 (박 할머니네)" }:
           ? "오늘의 특가 상태로 변경되었습니다!" 
           : "완판 임박 상태로 변경되었습니다!"
       );
+    }
+  };
+
+  const handleOpenToggle = () => {
+    setIsOpen(!isOpen);
+    toast.success(isOpen ? "휴업 상태로 변경되었습니다." : "금일 영업 상태로 변경되었습니다.");
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setStoreImage(imageUrl);
+      toast.success("가게 대표 이미지가 업데이트되었습니다!");
     }
   };
 
@@ -47,11 +64,24 @@ const MerchantDashboard = ({ stallName = "햇살농산물 (박 할머니네)" }:
 
   return (
     <div className={`min-h-screen bg-background p-6 ${isLargeText ? 'space-y-8' : 'space-y-6'}`}>
-      {/* Header with Large Text Toggle */}
+      {/* Header with Back Button and Large Text Toggle */}
       <div className="flex justify-between items-center">
-        <h1 className={`font-bold text-foreground ${headingSizeClass}`}>
-          {stallName} 가게 관리
-        </h1>
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              뒤로가기
+            </Button>
+          )}
+          <h1 className={`font-bold text-foreground ${headingSizeClass}`}>
+            {stallName} 가게 관리
+          </h1>
+        </div>
         
         <div className="flex items-center gap-3">
           <Type className="w-5 h-5 text-muted-foreground" />
@@ -72,6 +102,24 @@ const MerchantDashboard = ({ stallName = "햇살농산물 (박 할머니네)" }:
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* First row - Open/Closed status */}
+            <div className="grid grid-cols-1 gap-4">
+              <Button
+                variant={isOpen ? "default" : "outline"}
+                size="lg"
+                className={`h-20 flex-col gap-2 ${textSizeClass} ${
+                  isOpen 
+                    ? "bg-primary hover:bg-primary/90 text-white" 
+                    : "border-muted text-muted-foreground hover:bg-muted/10"
+                }`}
+                onClick={handleOpenToggle}
+              >
+                {isOpen ? <Power className="w-6 h-6" /> : <PowerOff className="w-6 h-6" />}
+                {isOpen ? "금일 영업" : "휴업"}
+              </Button>
+            </div>
+
+            {/* Second row - Special status */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Button
                 variant={activeStatus === "special" ? "default" : "outline"}
@@ -114,6 +162,47 @@ const MerchantDashboard = ({ stallName = "햇살농산물 (박 할머니네)" }:
             <CardTitle className={titleSizeClass}>내 가게 정보</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Store Representative Image */}
+            <div className="space-y-3">
+              <h4 className={`font-medium text-foreground ${textSizeClass}`}>가게 대표 이미지</h4>
+              <div className="border-2 border-dashed border-border rounded-lg p-4">
+                {storeImage ? (
+                  <div className="relative">
+                    <img 
+                      src={storeImage} 
+                      alt="가게 대표 이미지" 
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => document.getElementById('image-upload')?.click()}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div 
+                    className="flex flex-col items-center justify-center h-32 cursor-pointer hover:bg-muted/50 transition-colors rounded-lg"
+                    onClick={() => document.getElementById('image-upload')?.click()}
+                  >
+                    <Camera className="w-8 h-8 text-muted-foreground mb-2" />
+                    <p className={`text-muted-foreground ${textSizeClass} text-center`}>
+                      가게 대표 이미지를 업로드하세요
+                    </p>
+                  </div>
+                )}
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </div>
+            </div>
+
             <div className="space-y-3">
               <div>
                 <h4 className={`font-medium text-foreground ${textSizeClass}`}>가게 이름</h4>

@@ -11,16 +11,18 @@ interface MerchantRegistrationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete: () => void;
+  selectedMarket?: string;
 }
 
-const MerchantRegistrationModal = ({ isOpen, onClose, onComplete }: MerchantRegistrationModalProps) => {
+const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket }: MerchantRegistrationModalProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [stallData, setStallData] = useState({
     name: "",
     products: [] as string[],
     category: "",
-    location: { lat: 0, lng: 0 }
+    location: { lat: 0, lng: 0 },
+    market: selectedMarket || ""
   });
   const [gpsData, setGpsData] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -57,7 +59,7 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete }: MerchantRegi
     // Reset modal state
     setCurrentStep(1);
     setUploadedImage(null);
-    setStallData({ name: "", products: [], category: "", location: { lat: 0, lng: 0 } });
+    setStallData({ name: "", products: [], category: "", location: { lat: 0, lng: 0 }, market: "" });
     setGpsData(null);
   };
 

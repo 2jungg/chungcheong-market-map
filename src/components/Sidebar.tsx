@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import StallCard from "./StallCard";
 import { useMerchants } from "@/hooks/useMerchants";
+import MerchantDashboard from "./MerchantDashboard";
+import MerchantRegistrationModal from "./MerchantRegistrationModal";
+import { toast } from "sonner";
 
 interface Stall {
   id: string;
@@ -73,6 +76,8 @@ const mockStalls: Stall[] = [
 const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarket }: SidebarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [showMerchantDashboard, setShowMerchantDashboard] = useState(false);
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const { merchants, loading, error } = useMerchants(selectedRegion, selectedMarket);
 
   const filters = [
@@ -126,6 +131,24 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
         </div>
       </div>
 
+      {/* Merchant Management Section */}
+      <div className="px-6 py-4 border-b border-border space-y-2">
+        <Button
+          onClick={() => setShowMerchantDashboard(true)}
+          variant="default"
+          className="w-full h-12 text-base font-medium bg-primary hover:bg-primary/90 text-white"
+        >
+          <span>내 가게 관리하기</span>
+        </Button>
+        <Button
+          onClick={() => setShowRegistrationModal(true)}
+          variant="outline"
+          className="w-full h-10 text-sm font-medium"
+        >
+          <span>새 가게 등록하기</span>
+        </Button>
+      </div>
+
       {/* Scrollable Stall List */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {loading ? (
@@ -172,6 +195,24 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
             ))
         )}
       </div>
+
+      {/* Merchant Dashboard Modal */}
+      {showMerchantDashboard && (
+        <div className="fixed inset-0 z-50 bg-background">
+          <MerchantDashboard onBack={() => setShowMerchantDashboard(false)} />
+        </div>
+      )}
+
+      {/* Merchant Registration Modal */}
+      <MerchantRegistrationModal
+        isOpen={showRegistrationModal}
+        onClose={() => setShowRegistrationModal(false)}
+        onComplete={() => {
+          toast.success("가게 등록이 완료되었습니다!");
+          setShowRegistrationModal(false);
+        }}
+        selectedMarket={selectedMarket}
+      />
     </div>
   );
 };
