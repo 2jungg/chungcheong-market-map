@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, ArrowLeft, Clock, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { marketData } from "@/utils/marketData";
 
 interface Market {
   id: string;
@@ -47,20 +47,7 @@ const MarketSelector = ({
     try {
       setLoading(true);
       
-      // Market data from CSV
-      const marketData = {
-        sejong: [
-          { id: 'sejong-1', name: '세종대평시장', address: '금남면대평시장1길17-2', market_day: '2,7', latitude: 36.4801, longitude: 127.2890 },
-          { id: 'sejong-2', name: '전의왕의물시장', address: '전의면장터길33', market_day: '2,7', latitude: 36.3845, longitude: 127.3521 },
-          { id: 'sejong-3', name: '세종전통시장', address: '조치원읍조치원8길42', market_day: '4,9', latitude: 36.5885, longitude: 127.2890 },
-          { id: 'sejong-4', name: '부강전통시장', address: '부강면부강5길18', market_day: '5,10', latitude: 36.4177, longitude: 127.3965 }
-        ],
-        daejeon: [
-          { id: 'daejeon-1', name: '유성시장', address: '대전 유성구 유성대로730번길 24', market_day: '4,9', latitude: 36.3398, longitude: 127.3940 },
-          { id: 'daejeon-2', name: '신탄진시장', address: '대전광역시 대덕구 석봉로43번길 37', market_day: '3,8', latitude: 36.4366, longitude: 127.4304 }
-        ]
-      };
-
+      // Get market data for the selected region
       const regionMarkets = marketData[selectedRegion as keyof typeof marketData] || [];
       setMarkets(regionMarkets.map(market => ({ ...market, is_open: false })));
     } catch (err) {

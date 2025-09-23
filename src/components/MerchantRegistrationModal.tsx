@@ -23,7 +23,8 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket
     products: [] as string[],
     category: "",
     location: { lat: 0, lng: 0 },
-    market: selectedMarket || ""
+    market: selectedMarket || "",
+    password: ""
   });
   const [gpsData, setGpsData] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -60,7 +61,7 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket
     // Reset modal state
     setCurrentStep(1);
     setUploadedImage(null);
-    setStallData({ name: "", products: [], category: "", location: { lat: 0, lng: 0 }, market: "" });
+    setStallData({ name: "", products: [], category: "", location: { lat: 0, lng: 0 }, market: "", password: "" });
     setGpsData(null);
   };
 
@@ -90,6 +91,8 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket
           <Step3Complete
             onComplete={handleComplete}
             onClose={onClose}
+            stallData={stallData}
+            selectedRegion={selectedRegion}
           />
         );
       default:
