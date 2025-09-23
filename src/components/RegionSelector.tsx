@@ -8,6 +8,7 @@ import sejongCi from "@/assets/sejong-ci.png";
 
 interface RegionSelectorProps {
   onRegionSelect: (region: string) => void;
+  onLocationUpdate?: (location: { latitude: number; longitude: number }) => void;
 }
 
 interface UserLocation {
@@ -15,7 +16,7 @@ interface UserLocation {
   longitude: number;
 }
 
-const RegionSelector = ({ onRegionSelect }: RegionSelectorProps) => {
+const RegionSelector = ({ onRegionSelect, onLocationUpdate }: RegionSelectorProps) => {
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [nearestRegion, setNearestRegion] = useState<string | null>(null);
@@ -71,6 +72,11 @@ const RegionSelector = ({ onRegionSelect }: RegionSelectorProps) => {
           longitude: position.coords.longitude
         };
         setUserLocation(location);
+        
+        // Notify parent component of location update
+        if (onLocationUpdate) {
+          onLocationUpdate(location);
+        }
         
         // 가장 가까운 지역 찾기
         let minDistance = Infinity;

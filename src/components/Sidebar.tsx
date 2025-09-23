@@ -19,6 +19,7 @@ interface SidebarProps {
   selectedStallId: string | null;
   onStallSelect: (id: string) => void;
   selectedRegion?: string;
+  selectedMarket?: string;
 }
 
 const mockStalls: Stall[] = [
@@ -69,10 +70,10 @@ const mockStalls: Stall[] = [
   }
 ];
 
-const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion }: SidebarProps) => {
+const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarket }: SidebarProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const { merchants, loading, error } = useMerchants(selectedRegion);
+  const { merchants, loading, error } = useMerchants(selectedRegion, selectedMarket);
 
   const filters = [
     { id: "open", label: "영업 중" },

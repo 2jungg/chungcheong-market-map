@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import MapView from "@/components/MapView";
@@ -8,6 +10,7 @@ import MerchantDetailModal from "@/components/MerchantDetailModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import KakaoMapSetup from "@/components/KakaoMapSetup";
 import RegionSelector from "@/components/RegionSelector";
+import MarketSelector from "@/components/MarketSelector";
 import { useKakaoMap } from "@/hooks/useKakaoMap";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -20,6 +23,8 @@ const Index = () => {
   const [showApiSetup, setShowApiSetup] = useState(false);
   const [isMerchantDetailOpen, setIsMerchantDetailOpen] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [selectedMarket, setSelectedMarket] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<{latitude: number; longitude: number} | null>(null);
   
   const isMobile = useIsMobile();
   const { isLoaded: isMapLoaded } = useKakaoMap({ apiKey: kakaoApiKey || undefined });
@@ -64,6 +69,27 @@ const Index = () => {
     setShowApiSetup(false);
   };
 
+  const handleRegionSelect = (region: string) => {
+    setSelectedRegion(region);
+  };
+
+  const handleLocationUpdate = (location: { latitude: number; longitude: number }) => {
+    setUserLocation(location);
+  };
+
+  const handleMarketSelect = (marketId: string) => {
+    setSelectedMarket(marketId);
+  };
+
+  const handleBackToRegions = () => {
+    setSelectedRegion(null);
+    setSelectedMarket(null);
+  };
+
+  const handleBackToMarkets = () => {
+    setSelectedMarket(null);
+  };
+
   // 로딩 화면 표시
   if (!isAppLoaded || !isMapLoaded) {
     return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
@@ -75,13 +101,40 @@ const Index = () => {
 
   // 지역 선택 화면
   if (!selectedRegion) {
-    return <RegionSelector onRegionSelect={setSelectedRegion} />;
+    return (
+      <RegionSelector 
+        onRegionSelect={handleRegionSelect}
+        onLocationUpdate={handleLocationUpdate}
+      />
+    );
+  }
+
+  // 시장 선택 화면
+  if (!selectedMarket) {
+    return (
+      <MarketSelector 
+        selectedRegion={selectedRegion}
+        onMarketSelect={handleMarketSelect}
+        onBackToRegions={handleBackToRegions}
+        userLocation={userLocation}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <Header onRegisterClick={handleRegisterClick} />
+      {/* Header with Back to Markets button */}
+      <div className="h-16 border-b border-border flex items-center justify-between px-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleBackToMarkets}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          시장 선택으로 돌아가기
+        </Button>
+        <Header onRegisterClick={handleRegisterClick} />
+      </div>
       
       {/* Main Content - Different layout for mobile vs desktop */}
       {isMobile ? (
@@ -93,6 +146,7 @@ const Index = () => {
               selectedStallId={selectedStallId}
               onMarkerClick={handleMarkerClick}
               selectedRegion={selectedRegion}
+              selectedMarket={selectedMarket}
             />
           </div>
           
@@ -102,6 +156,7 @@ const Index = () => {
               selectedStallId={selectedStallId}
               onStallSelect={handleStallSelect}
               selectedRegion={selectedRegion}
+              selectedMarket={selectedMarket}
             />
           </div>
         </div>
@@ -114,6 +169,7 @@ const Index = () => {
               selectedStallId={selectedStallId}
               onStallSelect={handleStallSelect}
               selectedRegion={selectedRegion}
+              selectedMarket={selectedMarket}
             />
           </div>
           
@@ -123,6 +179,7 @@ const Index = () => {
               selectedStallId={selectedStallId}
               onMarkerClick={handleMarkerClick}
               selectedRegion={selectedRegion}
+              selectedMarket={selectedMarket}
             />
           </div>
         </div>

@@ -18,14 +18,14 @@ export interface Merchant {
   region?: string;
 }
 
-export const useMerchants = (selectedRegion?: string) => {
+export const useMerchants = (selectedRegion?: string, selectedMarket?: string) => {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMerchants();
-  }, [selectedRegion]);
+  }, [selectedRegion, selectedMarket]);
 
   const fetchMerchants = async () => {
     try {
@@ -38,6 +38,20 @@ export const useMerchants = (selectedRegion?: string) => {
       // Filter by region if provided
       if (selectedRegion) {
         query = query.eq('region', selectedRegion);
+      }
+
+      // Filter by specific market if provided
+      if (selectedMarket) {
+        // Get the market name from the selected market ID
+        const { data: marketData } = await supabase
+          .from('merchants')
+          .select('name')
+          .eq('id', selectedMarket)
+          .single();
+
+        if (marketData) {
+          query = query.eq('name', marketData.name);
+        }
       }
 
       const { data, error } = await query;
