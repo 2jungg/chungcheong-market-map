@@ -15,24 +15,32 @@ export interface Merchant {
   closing_time: string;
   is_open: boolean;
   image_url?: string;
+  region?: string;
 }
 
-export const useMerchants = () => {
+export const useMerchants = (selectedRegion?: string) => {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMerchants();
-  }, []);
+  }, [selectedRegion]);
 
   const fetchMerchants = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('merchants')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Filter by region if provided
+      if (selectedRegion) {
+        query = query.eq('region', selectedRegion);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         throw error;
@@ -60,10 +68,22 @@ export const useMerchants = () => {
     return Math.round(distance * 10) / 10; // Round to 1 decimal place
   };
 
+  // Check if market is open today based on 5-day market system
+  const isMarketOpenToday = (marketDay: string) => {
+    const today = new Date();
+    const dayOfMonth = today.getDate();
+    const lastDigit = dayOfMonth % 10;
+    
+    // Parse market days (e.g., "1,6" means days ending in 1 or 6)
+    const marketDays = marketDay.split(',').map(d => parseInt(d.trim()));
+    return marketDays.includes(lastDigit);
+  };
+
   const getMerchantsWithDistance = () => {
     return merchants.map(merchant => ({
       ...merchant,
-      distance: `${calculateDistance(merchant.latitude, merchant.longitude)}km`
+      distance: `${calculateDistance(merchant.latitude, merchant.longitude)}km`,
+      is_open: isMarketOpenToday(merchant.market_day) // Update is_open based on 5-day system
     }));
   };
 

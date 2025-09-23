@@ -18,6 +18,7 @@ interface MapMarker {
 interface MapViewProps {
   selectedStallId: string | null;
   onMarkerClick: (id: string) => void;
+  selectedRegion?: string;
 }
 
 // 충청남도 공주시 중심 좌표 (공주시장 주변)
@@ -59,12 +60,12 @@ const mockMarkers: MapMarker[] = [
   }
 ];
 
-const MapView = ({ selectedStallId, onMarkerClick }: MapViewProps) => {
+const MapView = ({ selectedStallId, onMarkerClick, selectedRegion }: MapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
   const markers = useRef<any[]>([]);
   const infoWindows = useRef<any[]>([]);
-  const { merchants, loading } = useMerchants();
+  const { merchants, loading } = useMerchants(selectedRegion);
   const [isMapReady, setIsMapReady] = useState(false);
 
   // 카카오맵 초기화

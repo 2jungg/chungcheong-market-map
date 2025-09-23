@@ -92,6 +92,7 @@ const Index = () => {
             <MapView 
               selectedStallId={selectedStallId}
               onMarkerClick={handleMarkerClick}
+              selectedRegion={selectedRegion}
             />
           </div>
           
@@ -100,6 +101,7 @@ const Index = () => {
             <Sidebar 
               selectedStallId={selectedStallId}
               onStallSelect={handleStallSelect}
+              selectedRegion={selectedRegion}
             />
           </div>
         </div>
@@ -111,6 +113,7 @@ const Index = () => {
             <Sidebar 
               selectedStallId={selectedStallId}
               onStallSelect={handleStallSelect}
+              selectedRegion={selectedRegion}
             />
           </div>
           
@@ -119,6 +122,7 @@ const Index = () => {
             <MapView 
               selectedStallId={selectedStallId}
               onMarkerClick={handleMarkerClick}
+              selectedRegion={selectedRegion}
             />
           </div>
         </div>
