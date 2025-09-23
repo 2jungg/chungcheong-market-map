@@ -11,6 +11,13 @@ interface Step3CompleteProps {
   onClose: () => void;
   stallData?: {
     name: string;
+    description: string;
+    owner_name: string;
+    address: string;
+    market_day: string;
+    opening_time: string;
+    closing_time: string;
+    phone: string;
     products: string[];
     category: string;
     location: { lat: number; lng: number };
@@ -49,15 +56,15 @@ const Step3Complete = ({ onComplete, onClose, stallData, selectedRegion }: Step3
         .from('merchants')
         .insert({
           name: stallData.name,
-          owner_name: "사장님", // 기본값
-          description: `${stallData.category} 전문점`,
-          phone: "",
-          address: `${stallData.market}`,
+          owner_name: stallData.owner_name,
+          description: stallData.description,
+          phone: stallData.phone,
+          address: stallData.address,
           latitude: stallData.location.lat,
           longitude: stallData.location.lng,
-          market_day: "1,6", // 기본값
-          opening_time: "09:00",
-          closing_time: "18:00",
+          market_day: stallData.market_day,
+          opening_time: stallData.opening_time,
+          closing_time: stallData.closing_time,
           is_open: true,
           region: selectedRegion || "",
           image_url: null

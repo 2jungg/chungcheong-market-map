@@ -115,3 +115,99 @@ export const extractGPSFromImage = async (file: File): Promise<{ lat: number; ln
     }, 500);
   });
 };
+
+/**
+ * Analyzes an image with Gemini to extract stall information
+ * @param file - The image file
+ * @returns Promise with extracted stall data
+ */
+export const analyzeImageWithGemini = async (file: File): Promise<{
+  name: string;
+  description: string;
+  owner_name: string;
+  address: string;
+  market_day: string;
+  opening_time: string;
+  closing_time: string;
+  phone: string;
+  products: string[];
+  category: string;
+} | null> => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("VITE_GEMINI_API_KEY is not set");
+  }
+
+  const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+    reader.onerror = error => reject(error);
+  });
+
+  const base64Image = await toBase64(file);
+
+  const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const prompt = `
+    Analyze the attached image of a market stall and extract the following information in JSON format.
+    If a value is not present in the image, use a reasonable default or leave it as an empty string.
+
+    - name (string): The name of the shop.
+    - description (string): A brief description of the shop.
+    - owner_name (string): The name of the owner. If not found, default to the value of the 'name' field.
+    - address (string): The address of the stall.
+    - market_day (string): The days the market is open, as a comma-separated string (e.g., "1,6").
+    - opening_time (string): The opening time in HH:MM format. Default to "09:00".
+    - closing_time (string): The closing time in HH:MM format. Default to "18:00".
+    - phone (string): The contact phone number.
+    - products (array of strings): A list of the main products sold.
+    - category (string): A suitable category for the stall (e.g., "농산물", "수산물", "음식점", "의류").
+
+    Example JSON output:
+    {
+      "name": "햇살농산물",
+      "description": "신선한 제철 과일과 채소를 판매합니다.",
+      "owner_name": "햇살농산물",
+      "address": "충북 청주시 상당구 육거리시장",
+      "market_day": "2,7",
+      "opening_time": "08:00",
+      "closing_time": "19:00",
+      "phone": "010-1234-5678",
+      "products": ["공주알밤", "유기농고구마", "햇자두", "청양고추"],
+      "category": "농산물"
+    }
+  `;
+
+  const imagePart = {
+    inlineData: {
+      data: base64Image,
+      mimeType: file.type,
+    },
+  };
+
+  try {
+    const result = await model.generateContent([prompt, imagePart]);
+    const response = await result.response;
+    let text = response.text();
+    
+    // The model can sometimes return the JSON wrapped in ```json ... ```.
+    // Or it might just return the JSON object directly, sometimes with leading/trailing text.
+    console.log("Raw Gemini response:", text);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch && jsonMatch[0]) {
+      text = jsonMatch[0];
+      return JSON.parse(text);
+    }
+    
+    // If no JSON object is found, something went wrong.
+    console.error("Failed to find JSON in Gemini response:", text);
+    return null;
+
+  } catch (error) {
+    console.error("Error analyzing image with Gemini:", error);
+    return null;
+  }
+};
