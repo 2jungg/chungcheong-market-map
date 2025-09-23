@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import shoppingBagIcon from "@/assets/shopping-bag-icon.png";
+import logoIcon from "@/assets/chungcheong-connect-logo.png";
 
 interface LoadingScreenProps {
   onLoadingComplete: () => void;
@@ -62,27 +62,26 @@ const LoadingScreen = ({ onLoadingComplete }: LoadingScreenProps) => {
       <div className="flex flex-col items-center mb-8">
         <div className="relative mb-6">
           <img 
-            src={shoppingBagIcon} 
-            alt="Shopping Bag" 
-            className="w-24 h-24 animate-bounce"
+            src={logoIcon} 
+            alt="충청 커넥트 로고" 
+            className="w-20 h-20 sm:w-24 sm:h-24 animate-bounce"
             style={{
-              filter: 'hue-rotate(0deg) saturate(1.2) brightness(1.1)',
               animationDuration: '1.5s'
             }}
           />
-          <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full animate-pulse" />
+          <div className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 bg-accent rounded-full animate-pulse" />
         </div>
         
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 text-center">
           충청 시장 커넥트
         </h1>
-        <p className="text-muted-foreground text-center max-w-md">
+        <p className="text-muted-foreground text-center max-w-md px-4 text-sm sm:text-base">
           실시간으로 확인하는 우리 동네 5일장
         </p>
       </div>
 
       {/* Loading Progress */}
-      <div className="w-80 mb-6">
+      <div className="w-full max-w-xs sm:max-w-sm mx-4 mb-6">
         <div className="flex justify-between items-center mb-3">
           <span className="text-sm font-medium text-foreground">
             {loadingText}

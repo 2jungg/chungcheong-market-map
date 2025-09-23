@@ -2,9 +2,10 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { resizeImage, validateImageFile, createImagePreview, extractGPSFromImage } from "@/utils/imageUtils";
 
 interface Step1PhotoUploadProps {
-  onPhotoUpload: (imageUrl: string) => void;
+  onPhotoUpload: (imageUrl: string, gpsData?: { lat: number; lng: number }) => void;
   onNext: () => void;
   onCancel: () => void;
   hasPhoto: boolean;
@@ -43,26 +44,29 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
   };
 
   const handleFile = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast.error("이미지 파일만 업로드할 수 있습니다.");
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("파일 크기는 10MB 이하여야 합니다.");
+    // Validate file
+    const validation = validateImageFile(file, 10);
+    if (!validation.valid) {
+      toast.error(validation.error!);
       return;
     }
 
     setUploading(true);
     
     try {
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
+      // Resize image to prevent database overload
+      const resizedBlob = await resizeImage(file, 800, 600, 0.8);
+      
+      // Create preview URL from resized image
+      const previewUrl = URL.createObjectURL(resizedBlob);
       setPreviewImage(previewUrl);
+      
+      // Extract GPS data
+      const gpsData = await extractGPSFromImage(file);
       
       // Simulate AI processing with delay
       setTimeout(() => {
-        onPhotoUpload(previewUrl);
+        onPhotoUpload(previewUrl, gpsData || undefined);
         setUploading(false);
         toast.success("사진이 성공적으로 업로드되었습니다!");
       }, 1500);
@@ -87,14 +91,14 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div className="text-center space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground">
           가게(좌판) 사진 등록하기
         </h2>
-        <p className="text-lg text-muted-foreground leading-relaxed">
-          스마트폰으로 현재 판매하시는 좌판 사진을 찍거나, 저장된 사진을 올려주세요.<br />
-          위치 정보가 자동으로 입력됩니다.
+        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed px-4">
+          스마트폰으로 현재 판매하시는 좌판 사진을 찍거나, 저장된 사진을 올려주세요.<br className="hidden sm:block" />
+          <span className="sm:hidden"> </span>위치 정보가 자동으로 입력됩니다.
         </p>
       </div>
 
@@ -104,7 +108,7 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
             <img 
               src={previewImage} 
               alt="업로드된 사진" 
-              className="w-full h-80 object-cover rounded-lg border-2 border-border"
+              className="w-full h-60 sm:h-80 object-cover rounded-lg border-2 border-border"
             />
             <Button
               onClick={handleRemovePhoto}
@@ -117,7 +121,7 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
           </div>
         ) : (
           <div
-            className={`relative border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors duration-200 ${
+            className={`relative border-2 border-dashed rounded-lg p-6 sm:p-12 text-center cursor-pointer transition-colors duration-200 ${
               dragActive 
                 ? "border-primary bg-primary/5" 
                 : "border-border hover:border-primary/50 hover:bg-accent/30"
@@ -137,15 +141,15 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
               capture="environment"
             />
             
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div className="flex justify-center">
-                <div className="p-6 bg-primary/10 rounded-full">
-                  <Camera className="w-12 h-12 text-primary" />
+                <div className="p-4 sm:p-6 bg-primary/10 rounded-full">
+                  <Camera className="w-8 h-8 sm:w-12 sm:h-12 text-primary" />
                 </div>
               </div>
               
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
+                <h3 className="text-base sm:text-lg font-medium text-foreground">
                   여기를 클릭해서 사진 촬영 또는 업로드
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -179,11 +183,11 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
         )}
       </div>
 
-      <div className="flex justify-between pt-4">
+      <div className="flex justify-between pt-4 gap-4">
         <Button 
           variant="outline" 
           onClick={onCancel}
-          className="px-8 py-2 text-lg"
+          className="px-4 sm:px-8 py-2 text-base sm:text-lg flex-1 sm:flex-none"
         >
           취소
         </Button>
@@ -191,7 +195,7 @@ const Step1PhotoUpload = ({ onPhotoUpload, onNext, onCancel, hasPhoto }: Step1Ph
         <Button 
           onClick={onNext}
           disabled={!hasPhoto || uploading}
-          className="px-8 py-2 text-lg bg-primary hover:bg-primary/90"
+          className="px-4 sm:px-8 py-2 text-base sm:text-lg bg-primary hover:bg-primary/90 flex-1 sm:flex-none"
         >
           다음 단계로
         </Button>

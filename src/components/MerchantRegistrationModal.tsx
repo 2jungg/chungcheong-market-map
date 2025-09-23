@@ -22,6 +22,7 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete }: MerchantRegi
     category: "",
     location: { lat: 0, lng: 0 }
   });
+  const [gpsData, setGpsData] = useState<{ lat: number; lng: number } | null>(null);
 
   const totalSteps = 3;
   const progressValue = (currentStep / totalSteps) * 100;
@@ -38,8 +39,12 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete }: MerchantRegi
     }
   };
 
-  const handlePhotoUpload = (imageUrl: string) => {
+  const handlePhotoUpload = (imageUrl: string, gpsData?: { lat: number; lng: number }) => {
     setUploadedImage(imageUrl);
+    if (gpsData) {
+      setGpsData(gpsData);
+      setStallData(prev => ({ ...prev, location: gpsData }));
+    }
   };
 
   const handleStallDataUpdate = (data: Partial<typeof stallData>) => {
@@ -53,6 +58,7 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete }: MerchantRegi
     setCurrentStep(1);
     setUploadedImage(null);
     setStallData({ name: "", products: [], category: "", location: { lat: 0, lng: 0 } });
+    setGpsData(null);
   };
 
   const renderStep = () => {
@@ -90,11 +96,11 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete }: MerchantRegi
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="px-8 py-6 border-b border-border">
+      <DialogContent className="max-w-4xl max-h-[90vh] w-full mx-4 sm:mx-auto p-0 overflow-hidden">
+        <DialogHeader className="px-4 sm:px-8 py-4 sm:py-6 border-b border-border">
           <div className="space-y-4">
-            <DialogTitle className="text-2xl font-bold text-foreground text-center">
-              사장님, 환영합니다! 3단계로 가게를 등록해보세요
+            <DialogTitle className="text-lg sm:text-2xl font-bold text-foreground text-center leading-tight">
+              사장님, 환영합니다!<br className="sm:hidden" /> <span className="sm:inline">3단계로 가게를 등록해보세요</span>
             </DialogTitle>
             
             <div className="space-y-2">
@@ -106,7 +112,7 @@ const MerchantRegistrationModal = ({ isOpen, onClose, onComplete }: MerchantRegi
           </div>
         </DialogHeader>
         
-        <div className="px-8 py-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="px-4 sm:px-8 py-4 sm:py-6 overflow-y-auto max-h-[calc(90vh-120px)]">
           {renderStep()}
         </div>
       </DialogContent>
