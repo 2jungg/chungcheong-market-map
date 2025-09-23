@@ -44,6 +44,13 @@ export type Database = {
             referencedRelation: "merchants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "merchant_auth_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: true
+            referencedRelation: "merchants_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       merchants: {
@@ -145,11 +152,68 @@ export type Database = {
             referencedRelation: "merchants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "products_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      merchants_public: {
+        Row: {
+          closing_time: string | null
+          created_at: string | null
+          description: string | null
+          general_location: string | null
+          id: string | null
+          image_url: string | null
+          is_open: boolean | null
+          latitude: number | null
+          longitude: number | null
+          market_day: string | null
+          name: string | null
+          opening_time: string | null
+          region: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          closing_time?: string | null
+          created_at?: string | null
+          description?: string | null
+          general_location?: never
+          id?: string | null
+          image_url?: string | null
+          is_open?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          market_day?: string | null
+          name?: string | null
+          opening_time?: string | null
+          region?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          closing_time?: string | null
+          created_at?: string | null
+          description?: string | null
+          general_location?: never
+          id?: string | null
+          image_url?: string | null
+          is_open?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          market_day?: string | null
+          name?: string | null
+          opening_time?: string | null
+          region?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
