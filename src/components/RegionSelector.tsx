@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Loader2 } from "lucide-react";
-import chungnamCi from "@/assets/chungnam-ci.png";
-import chungbukCi from "@/assets/chungbuk-ci.png";
-import sejongCi from "@/assets/sejong-ci.png";
+import chungnamCi from '@/assets/chungnam-ci.png';
+import chungbukCi from '@/assets/chungbuk-ci.png';
+import sejongCi from '@/assets/sejong-ci.png';
+import daejeonCi from '@/assets/daejeon-ci.png';
 
 interface RegionSelectorProps {
   onRegionSelect: (region: string) => void;
@@ -42,6 +43,13 @@ const RegionSelector = ({ onRegionSelect, onLocationUpdate }: RegionSelectorProp
       description: "세종시의 전통시장을 만나보세요", 
       image: sejongCi,
       center: { lat: 36.5, lng: 127.3 }
+    },
+    {
+      id: "daejeon",
+      name: "대전광역시",
+      description: "유성시장, 신탄진시장 등 대표 5일장",
+      image: daejeonCi,
+      center: { lat: 36.3504, lng: 127.3845 }
     }
   ];
 
@@ -155,7 +163,7 @@ const RegionSelector = ({ onRegionSelect, onLocationUpdate }: RegionSelectorProp
           )}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {regions.map((region) => (
             <Card 
               key={region.id}

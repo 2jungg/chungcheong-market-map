@@ -12,9 +12,10 @@ interface MerchantRegistrationModalProps {
   onClose: () => void;
   onComplete: () => void;
   selectedMarket?: string;
+  selectedRegion?: string;
 }
 
-const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket }: MerchantRegistrationModalProps) => {
+const MerchantRegistrationModal = ({ isOpen, onClose, onComplete, selectedMarket, selectedRegion }: MerchantRegistrationModalProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [stallData, setStallData] = useState({

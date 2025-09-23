@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      merchant_auth: {
+        Row: {
+          created_at: string
+          id: string
+          merchant_id: string
+          password_hash: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          merchant_id: string
+          password_hash: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          merchant_id?: string
+          password_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_auth_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: true
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       merchants: {
         Row: {
           address: string | null

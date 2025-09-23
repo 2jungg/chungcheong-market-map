@@ -190,6 +190,8 @@ const Index = () => {
         isOpen={isRegistrationModalOpen}
         onClose={handleCloseModal}
         onComplete={handleRegistrationComplete}
+        selectedMarket={selectedMarket}
+        selectedRegion={selectedRegion}
       />
 
       {/* Merchant Detail Modal */}

@@ -6,7 +6,10 @@ import StallCard from "./StallCard";
 import { useMerchants } from "@/hooks/useMerchants";
 import MerchantDashboard from "./MerchantDashboard";
 import MerchantRegistrationModal from "./MerchantRegistrationModal";
+import MerchantAuthModal from "./MerchantAuthModal";
+import MerchantManagementModal from "./MerchantManagementModal";
 import { toast } from "sonner";
+import { Store, Settings } from "lucide-react";
 
 interface Stall {
   id: string;
@@ -77,8 +80,31 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [showMerchantDashboard, setShowMerchantDashboard] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showManagementModal, setShowManagementModal] = useState(false);
+  const [authenticatedMerchantId, setAuthenticatedMerchantId] = useState<string | null>(null);
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const { merchants, loading, error } = useMerchants(selectedRegion, selectedMarket);
+
+  const handleAuthSuccess = (merchantId: string) => {
+    setAuthenticatedMerchantId(merchantId);
+    setShowManagementModal(true);
+  };
+
+  const handleEditMerchant = () => {
+    setShowManagementModal(false);
+    setShowMerchantDashboard(true);
+  };
+
+  if (showMerchantDashboard) {
+    return (
+      <div className="w-full h-full bg-background">
+        <MerchantDashboard 
+          onBack={() => setShowMerchantDashboard(false)}
+        />
+      </div>
+    );
+  }
 
   const filters = [
     { id: "open", label: "영업 중" },
@@ -133,16 +159,29 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
 
       {/* Merchant Management Section */}
       <div className="px-6 py-4 border-b border-border space-y-2">
-        <Button
-          onClick={() => setShowMerchantDashboard(true)}
-          variant="default"
-          className="w-full h-12 text-base font-medium bg-primary hover:bg-primary/90 text-white"
-        >
-          <span>내 가게 관리하기</span>
-        </Button>
+        <div className="space-y-2">
+          <Button
+            onClick={() => setShowMerchantDashboard(true)}
+            variant="outline"
+            className="w-full justify-start gap-2"
+          >
+            <Store className="w-4 h-4" />
+            내 가게 관리하기
+          </Button>
+          
+          <Button
+            onClick={() => setShowAuthModal(true)}
+            variant="outline"
+            className="w-full justify-start gap-2"
+          >
+            <Settings className="w-4 h-4" />
+            기존 가게 관리
+          </Button>
+        </div>
+        
         <Button
           onClick={() => setShowRegistrationModal(true)}
-          variant="outline"
+          variant="default"
           className="w-full h-10 text-sm font-medium"
         >
           <span>새 가게 등록하기</span>
@@ -196,13 +235,6 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
         )}
       </div>
 
-      {/* Merchant Dashboard Modal */}
-      {showMerchantDashboard && (
-        <div className="fixed inset-0 z-50 bg-background">
-          <MerchantDashboard onBack={() => setShowMerchantDashboard(false)} />
-        </div>
-      )}
-
       {/* Merchant Registration Modal */}
       <MerchantRegistrationModal
         isOpen={showRegistrationModal}
@@ -212,7 +244,26 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
           setShowRegistrationModal(false);
         }}
         selectedMarket={selectedMarket}
+        selectedRegion={selectedRegion}
       />
+      
+      <MerchantAuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthenticated={handleAuthSuccess}
+      />
+      
+      {authenticatedMerchantId && (
+        <MerchantManagementModal
+          isOpen={showManagementModal}
+          onClose={() => {
+            setShowManagementModal(false);
+            setAuthenticatedMerchantId(null);
+          }}
+          merchantId={authenticatedMerchantId}
+          onEdit={handleEditMerchant}
+        />
+      )}
     </div>
   );
 };

@@ -35,7 +35,8 @@ const MarketSelector = ({
   const regionNames = {
     chungnam: "충청남도",
     chungbuk: "충청북도", 
-    sejong: "세종특별자치시"
+    sejong: "세종특별자치시",
+    daejeon: "대전광역시"
   };
 
   useEffect(() => {
