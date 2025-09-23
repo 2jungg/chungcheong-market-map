@@ -15,8 +15,10 @@ export const useKakaoMap = ({ apiKey }: UseKakaoMapProps = {}) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const kakaoApiKey = apiKey || "74d41239aa34ddd19496573c4cd0a3d2";
+    
     // 카카오맵 API 키가 없으면 로딩만 시뮬레이션
-    if (!apiKey) {
+    if (!kakaoApiKey) {
       const timer = setTimeout(() => {
         setIsLoaded(true);
       }, 3000); // 3초 후 로딩 완료
@@ -32,7 +34,7 @@ export const useKakaoMap = ({ apiKey }: UseKakaoMapProps = {}) => {
 
     // 카카오맵 스크립트 로드
     const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&autoload=false`;
     script.async = true;
 
     script.onload = () => {

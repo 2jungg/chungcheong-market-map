@@ -13,7 +13,7 @@ const Header = ({ onRegisterClick, onManageClick, showLogo = true }: HeaderProps
   const isMobile = useIsMobile();
   
   return (
-    <header className="w-full h-16 bg-background border-b border-border px-4 sm:px-6 flex items-center justify-between">
+    <header className="w-full h-16 bg-background border-b border-border px-4 sm:px-6 flex items-center">
       {showLogo && (
         <div className="flex items-center gap-3">
           <img 
@@ -27,7 +27,7 @@ const Header = ({ onRegisterClick, onManageClick, showLogo = true }: HeaderProps
         </div>
       )}
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 ml-auto">
         <Button 
           onClick={onRegisterClick}
           className="bg-accent hover:bg-accent-hover text-accent-foreground font-medium px-3 sm:px-6 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-all duration-200"

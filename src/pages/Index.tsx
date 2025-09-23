@@ -29,7 +29,7 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   
   const isMobile = useIsMobile();
-  const { isLoaded: isMapLoaded } = useKakaoMap({ apiKey: kakaoApiKey || undefined });
+  const { isLoaded: isMapLoaded } = useKakaoMap({ apiKey: "74d41239aa34ddd19496573c4cd0a3d2" });
 
   const handleStallSelect = (id: string) => {
     setSelectedStallId(id);
@@ -56,7 +56,7 @@ const Index = () => {
   const handleLoadingComplete = () => {
     setIsAppLoaded(true);
     // API 키를 자동으로 설정
-    const apiKey = "f51bfd81bde558126cb30b3d1052ab13";
+    const apiKey = "74d41239aa34ddd19496573c4cd0a3d2";
     setKakaoApiKey(apiKey);
     localStorage.setItem('kakao-api-key', apiKey);
   };
