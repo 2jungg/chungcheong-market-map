@@ -5,6 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: "./", // 상대 경로로 빌드 결과물을 생성하도록 설정
   server: {
     host: "::",
     port: 8080,
