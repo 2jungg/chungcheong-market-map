@@ -15,7 +15,7 @@ export const useKakaoMap = ({ apiKey }: UseKakaoMapProps = {}) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const kakaoApiKey = apiKey || "74d41239aa34ddd19496573c4cd0a3d2";
+    const kakaoApiKey = apiKey || import.meta.env.VITE_KAKAO_API_KEY;
     
     // 카카오맵 API 키가 없으면 로딩만 시뮬레이션
     if (!kakaoApiKey) {
