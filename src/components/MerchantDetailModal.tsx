@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, MapPin, Phone, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, MapPin, Phone, Star, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import MerchantAuthModal from "./MerchantAuthModal";
+import MerchantDashboard from "./MerchantDashboard";
 
 interface Product {
   id: string;
@@ -38,6 +41,9 @@ const MerchantDetailModal = ({ isOpen, onClose, merchantId }: MerchantDetailModa
   const [merchant, setMerchant] = useState<Merchant | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [authenticatedMerchantId, setAuthenticatedMerchantId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && merchantId) {
@@ -98,15 +104,43 @@ const MerchantDetailModal = ({ isOpen, onClose, merchantId }: MerchantDetailModa
     return price.toLocaleString('ko-KR') + '원';
   };
 
+  const handleAuthSuccess = (merchantId: string) => {
+    setAuthenticatedMerchantId(merchantId);
+    setShowAuthModal(false);
+    setShowDashboard(true);
+  };
+
+  const handleManageClick = () => {
+    setShowAuthModal(true);
+  };
+
+  const handleDashboardClose = () => {
+    setShowDashboard(false);
+    fetchMerchantData(); // 정보 업데이트를 위해 다시 로드
+  };
+
   if (!merchant && !loading) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            {loading ? '로딩 중...' : merchant?.name}
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl font-bold">
+              {loading ? '로딩 중...' : merchant?.name}
+            </DialogTitle>
+            {!loading && merchant && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleManageClick}
+                className="flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                가게 관리
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         {loading ? (
@@ -188,6 +222,25 @@ const MerchantDetailModal = ({ isOpen, onClose, merchantId }: MerchantDetailModa
           </div>
         ) : null}
       </DialogContent>
+
+      {/* 가게 인증 모달 */}
+      <MerchantAuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthenticated={handleAuthSuccess}
+      />
+
+      {/* 가게 대시보드 */}
+      {showDashboard && authenticatedMerchantId && (
+        <Dialog open={showDashboard} onOpenChange={setShowDashboard}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <MerchantDashboard 
+              stallName={merchant?.name}
+              onBack={handleDashboardClose}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 };
