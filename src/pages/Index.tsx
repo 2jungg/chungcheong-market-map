@@ -7,6 +7,7 @@ import MerchantDashboard from "@/components/MerchantDashboard";
 import MerchantDetailModal from "@/components/MerchantDetailModal";
 import LoadingScreen from "@/components/LoadingScreen";
 import KakaoMapSetup from "@/components/KakaoMapSetup";
+import RegionSelector from "@/components/RegionSelector";
 import { useKakaoMap } from "@/hooks/useKakaoMap";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -18,6 +19,7 @@ const Index = () => {
   const [kakaoApiKey, setKakaoApiKey] = useState<string | null>(null);
   const [showApiSetup, setShowApiSetup] = useState(false);
   const [isMerchantDetailOpen, setIsMerchantDetailOpen] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   
   const isMobile = useIsMobile();
   const { isLoaded: isMapLoaded } = useKakaoMap({ apiKey: kakaoApiKey || undefined });
@@ -69,6 +71,11 @@ const Index = () => {
 
   if (showMerchantDashboard) {
     return <MerchantDashboard />;
+  }
+
+  // 지역 선택 화면
+  if (!selectedRegion) {
+    return <RegionSelector onRegionSelect={setSelectedRegion} />;
   }
 
   return (
