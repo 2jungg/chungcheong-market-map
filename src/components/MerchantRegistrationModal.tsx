@@ -1,0 +1,117 @@
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Step1PhotoUpload from "./registration/Step1PhotoUpload";
+import Step2AIAnalysis from "./registration/Step2AIAnalysis";
+import Step3Complete from "./registration/Step3Complete";
+
+interface MerchantRegistrationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete: () => void;
+}
+
+const MerchantRegistrationModal = ({ isOpen, onClose, onComplete }: MerchantRegistrationModalProps) => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [stallData, setStallData] = useState({
+    name: "",
+    products: [] as string[],
+    category: "",
+    location: { lat: 0, lng: 0 }
+  });
+
+  const totalSteps = 3;
+  const progressValue = (currentStep / totalSteps) * 100;
+
+  const handleNext = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handlePhotoUpload = (imageUrl: string) => {
+    setUploadedImage(imageUrl);
+  };
+
+  const handleStallDataUpdate = (data: Partial<typeof stallData>) => {
+    setStallData(prev => ({ ...prev, ...data }));
+  };
+
+  const handleComplete = () => {
+    onComplete();
+    onClose();
+    // Reset modal state
+    setCurrentStep(1);
+    setUploadedImage(null);
+    setStallData({ name: "", products: [], category: "", location: { lat: 0, lng: 0 } });
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <Step1PhotoUpload
+            onPhotoUpload={handlePhotoUpload}
+            onNext={handleNext}
+            onCancel={onClose}
+            hasPhoto={!!uploadedImage}
+          />
+        );
+      case 2:
+        return (
+          <Step2AIAnalysis
+            uploadedImage={uploadedImage}
+            stallData={stallData}
+            onDataUpdate={handleStallDataUpdate}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        );
+      case 3:
+        return (
+          <Step3Complete
+            onComplete={handleComplete}
+            onClose={onClose}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <DialogHeader className="px-8 py-6 border-b border-border">
+          <div className="space-y-4">
+            <DialogTitle className="text-2xl font-bold text-foreground text-center">
+              사장님, 환영합니다! 3단계로 가게를 등록해보세요
+            </DialogTitle>
+            
+            <div className="space-y-2">
+              <div className="flex justify-center items-center gap-2 text-sm text-muted-foreground">
+                <span className="font-medium">{currentStep}/3 단계</span>
+              </div>
+              <Progress value={progressValue} className="w-full h-2" />
+            </div>
+          </div>
+        </DialogHeader>
+        
+        <div className="px-8 py-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          {renderStep()}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default MerchantRegistrationModal;
