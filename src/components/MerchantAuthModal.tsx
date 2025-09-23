@@ -25,19 +25,17 @@ const MerchantAuthModal = ({ isOpen, onClose, onAuthenticated }: MerchantAuthMod
     try {
       setLoading(true);
       
-      // Simple password verification (in production, use proper hashing)
-      const { data: authData, error } = await supabase
-        .from('merchant_auth')
-        .select('merchant_id')
-        .eq('password_hash', password)
-        .single();
+      // Use secure Edge Function for password verification
+      const { data, error } = await supabase.functions.invoke('verify-merchant-password', {
+        body: { password: password.trim() }
+      });
 
-      if (error || !authData) {
+      if (error || !data?.merchant_id) {
         toast.error("잘못된 비밀번호입니다.");
         return;
       }
 
-      onAuthenticated(authData.merchant_id);
+      onAuthenticated(data.merchant_id);
       onClose();
       toast.success("인증되었습니다!");
       
