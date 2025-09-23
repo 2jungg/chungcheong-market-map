@@ -1,16 +1,15 @@
 # 1단계: 빌드 환경 설정 (Builder Stage)
-# Node.js 20-alpine 버전을 기반으로 빌드 환경을 구성합니다. 'alpine'은 경량화된 리눅스 배포판입니다.
+# Node.js 20-alpine 버전을 기반으로 빌드 환경을 구성합니다.
 FROM node:20-alpine AS builder
 
 # 작업 디렉터리를 /app으로 설정합니다.
 WORKDIR /app
 
-# 의존성 설치를 위해 package.json과 bun.lockb 파일을 먼저 복사합니다.
-# 이렇게 하면 소스 코드가 변경되어도 의존성은 캐시된 레이어를 사용해 빌드 속도를 높일 수 있습니다.
-COPY package.json bun.lockb ./
+# 의존성 설치를 위해 package.json과 package-lock.json 파일을 먼저 복사합니다.
+COPY package.json package-lock.json ./
 
-# Bun을 사용하여 의존성을 설치합니다.
-RUN bun install
+# npm을 사용하여 의존성을 설치합니다.
+RUN npm install
 
 # 나머지 소스 코드를 /app 디렉터리로 복사합니다.
 COPY . .
