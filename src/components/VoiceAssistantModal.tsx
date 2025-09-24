@@ -63,7 +63,7 @@ const VoiceAssistantModal = ({ isOpen, onClose }: VoiceAssistantModalProps) => {
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-primary" />
-            <h2 className="font-semibold text-foreground">충청 시장 커넥트 음성비서</h2>
+            <h2 className="font-semibold text-foreground">어서5슈 음성비서</h2>
           </div>
           <Button
             variant="ghost"

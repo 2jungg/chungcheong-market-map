@@ -17,7 +17,7 @@ const VoiceAssistantFAB = () => {
               className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               size="icon"
             >
-              <Mic className="h-6 w-6 text-primary-foreground" />
+              <Mic className="h-8 w-8 text-primary-foreground" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="left" className="mb-2">
