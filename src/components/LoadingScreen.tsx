@@ -7,11 +7,11 @@ interface LoadingScreenProps {
 
 const LoadingScreen = ({ onLoadingComplete }: LoadingScreenProps) => {
   const [progress, setProgress] = useState(0);
-  const [loadingText, setLoadingText] = useState("충청 시장 커넥트를 준비하고 있어요");
+  const [loadingText, setLoadingText] = useState("어서5슈를 준비하고 있어요");
 
   useEffect(() => {
     const loadingSteps = [
-      { text: "충청 시장 커넥트를 준비하고 있어요", duration: 800 },
+      { text: "어서5슈를 준비하고 있어요", duration: 800 },
       { text: "지도를 불러오고 있어요", duration: 1000 },
       { text: "시장 정보를 가져오고 있어요", duration: 800 },
       { text: "거의 다 됐어요!", duration: 600 }
@@ -63,7 +63,7 @@ const LoadingScreen = ({ onLoadingComplete }: LoadingScreenProps) => {
         <div className="relative mb-6">
           <img 
             src={logoIcon} 
-            alt="충청 커넥트 로고" 
+            alt="어서5슈 로고" 
             className="w-20 h-20 sm:w-24 sm:h-24 animate-bounce"
             style={{
               animationDuration: '1.5s'
@@ -73,7 +73,7 @@ const LoadingScreen = ({ onLoadingComplete }: LoadingScreenProps) => {
         </div>
         
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 text-center">
-          충청 시장 커넥트
+          어서5슈
         </h1>
         <p className="text-muted-foreground text-center max-w-md px-4 text-sm sm:text-base">
           실시간으로 확인하는 우리 동네 5일장

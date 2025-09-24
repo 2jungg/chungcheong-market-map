@@ -117,7 +117,7 @@ const Sidebar = ({ selectedStallId, onStallSelect, selectedRegion, selectedMarke
       {/* Header Section */}
       <div className="p-6 border-b border-border">
         <h1 className="text-2xl font-bold text-foreground mb-2">
-          충청 시장 커넥트
+          어서5슈
         </h1>
         <p className="text-muted-foreground text-sm">
           실시간으로 확인하는 우리 동네 5일장
