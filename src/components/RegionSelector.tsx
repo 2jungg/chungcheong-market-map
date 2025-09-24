@@ -125,7 +125,7 @@ const RegionSelector = ({ onRegionSelect, onLocationUpdate }: RegionSelectorProp
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8 pt-8">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            어서5슈
+            충청 5일장 알아보기
           </h1>
           <p className="text-lg text-muted-foreground mb-6">
             원하시는 지역을 선택하여 전통시장을 탐색해보세요
