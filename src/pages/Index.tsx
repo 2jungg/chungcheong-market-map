@@ -8,6 +8,7 @@ import MerchantRegistrationModal from "@/components/MerchantRegistrationModal";
 import MerchantDashboard from "@/components/MerchantDashboard";
 import MerchantDetailModal from "@/components/MerchantDetailModal";
 import MerchantAuthModal from "@/components/MerchantAuthModal";
+import VoiceAssistantFAB from "@/components/VoiceAssistantFAB";
 import LoadingScreen from "@/components/LoadingScreen";
 import KakaoMapSetup from "@/components/KakaoMapSetup";
 import RegionSelector from "@/components/RegionSelector";
@@ -216,6 +217,9 @@ const Index = () => {
           setShowMerchantDashboard(true);
         }}
       />
+
+      {/* Voice Assistant FAB */}
+      <VoiceAssistantFAB />
     </div>
   );
 };

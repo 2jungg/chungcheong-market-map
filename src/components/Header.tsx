@@ -18,11 +18,11 @@ const Header = ({ onRegisterClick, onManageClick, showLogo = true }: HeaderProps
         <div className="flex items-center gap-3">
           <img 
             src={logoIcon} 
-            alt="충청 커넥트 로고" 
+            alt="어서5슈 로고" 
             className="w-8 h-8 sm:w-10 sm:h-10"
           />
           <h1 className="text-lg sm:text-2xl font-bold text-foreground">
-            충청 시장 커넥트
+            어서5슈
           </h1>
         </div>
       )}
